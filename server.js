@@ -1,6 +1,6 @@
 const express = require('express'); // brings in the express package, similar to import react.
-
 const morgan = require('morgan'); // brings in the morgan package, npm install morgan.
+const helmet = require('helmet'); // brings in the helmet package, npm install helmet.
 
 const db = require('./data/db.js'); // same as import. This in react would look like import db from './data/db.js';
 
@@ -8,6 +8,8 @@ const server = express(); // calls express as a function
 
 // middelware
 server.use(morgan('dev')); // uses the string to format something.
+server.use(helmet()); // uses Helmet to protect the server.
+server.use(express.json()); // exact same thing as bodyParser.
 
 server.get('/', function (req, res) { // object that represents a request, then a response (req, res).
   // res.send('Api Running.......'); // sends the server what you have here.
@@ -35,6 +37,65 @@ server.get('/api/users/:id', (req, res) => {
     .findById(id) // finds it by the ID, aka the paramater defined in db.js - `findById`
     .then(users => { 
       res.json(users[0]); // grabs the first user in the array, rather than the whole array.
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
+});
+
+server.post('/api/users', (req, res) => {
+  const user = req.body;
+  db
+    .insert(user)
+    .then(response => {
+      res.status(201).json(response);
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json({ error: 'There was an error while saving the user to the database',
+        });
+    });
+});
+
+server.delete('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  let user;
+
+  db.findById(id)
+    .then(response => {
+      user = { ...response[0] };
+
+  db
+    .remove(id)
+    .then(response => {
+      res.status(200).json(user);
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    });
+  })
+  .catch(error => {
+    res.status(500).json(error);
+  });
+});
+
+server.put('/api/users/:id', (req, res) => {
+  const { id } = req.params;
+  const update = req.body;
+
+  db
+    .update(id, update)
+    .then (count => {
+      if (count > 0) {
+        db.findById(id).then(updateUser => {
+          res.status(200).json(updatedUser);\
+        });
+      } else {
+        res
+          .status(404)
+          .json({ message: 'The user with the specified ID does not exist' });
+      }
     })
     .catch(error => {
       res.status(500).json(error);
