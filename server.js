@@ -1,7 +1,13 @@
 const express = require('express'); // brings in the express package, similar to import react.
+
+const morgan = require('morgan'); // brings in the morgan package, npm install morgan.
+
 const db = require('./data/db.js'); // same as import. This in react would look like import db from './data/db.js';
 
 const server = express(); // calls express as a function
+
+// middelware
+server.use(morgan('dev')); // uses the string to format something.
 
 server.get('/', function (req, res) { // object that represents a request, then a response (req, res).
   // res.send('Api Running.......'); // sends the server what you have here.
