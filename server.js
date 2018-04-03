@@ -30,6 +30,20 @@ server.get('/api/users', (req, res) => { // can also use arrow functions here in
     });
 });
 
+// localhost:5000/api/users/search?userid=2 // how you pass things to the query string
+server.get('/api/users/search', (req, res) => {
+  const { userid } = req.query; // how to read the query string
+
+  db
+    .findById(userid)
+    .then(users => {
+      res.json(users[0]);
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
+});
+
 server.get('/api/users/:id', (req, res) => {
   const { id } = req.params;
 
@@ -89,7 +103,7 @@ server.put('/api/users/:id', (req, res) => {
     .then (count => {
       if (count > 0) {
         db.findById(id).then(updateUser => {
-          res.status(200).json(updatedUser);\
+          res.status(200).json(updatedUser);
         });
       } else {
         res
