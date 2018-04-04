@@ -1,15 +1,32 @@
 const express = require('express'); // brings in the express package, similar to import react.
-const morgan = require('morgan'); // brings in the morgan package, npm install morgan.
+// const morgan = require('morgan'); // brings in the morgan package, npm install morgan.
 const helmet = require('helmet'); // brings in the helmet package, npm install helmet.
+const cors = require('cors'); // brings in the cors package, npm install cors.
 
 const db = require('./data/db.js'); // same as import. This in react would look like import db from './data/db.js';
 
+const userRouter = require('./users/userRouter.js'); // userRouter?
+
 const server = express(); // calls express as a function
 
+// custom middleware [m1, m2, mn] -> [request handlers]
+function logger (req, res, next) {
+  // next points to the middleware
+  console.log('body: ', req.body);
+  // req.url = `${req.url}/1`;
+  // res.send('done');
+
+  next();
+}
+
 // middelware
-server.use(morgan('dev')); // uses the string to format something.
+// server.use(morgan('dev')); // uses the string to format something.
 server.use(helmet()); // uses Helmet to protect the server.
 server.use(express.json()); // exact same thing as bodyParser.
+server.use(logger);
+server.use(cors()); // allows you to connect back-end to front-end.
+
+server.use('/api/users', userRouter);
 
 server.get('/', function (req, res) { // object that represents a request, then a response (req, res).
   // res.send('Api Running.......'); // sends the server what you have here.
